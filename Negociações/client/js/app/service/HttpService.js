@@ -10,12 +10,10 @@ class HttpService{
 
 				if(xhr.readyState == 4 && xhr.status == 200 ){
 
-					console.log(xhr.responseText);
 					resolve(JSON.parse(xhr.responseText));
 				}
 				else{
 
-					console.log(xhr.responseText);
 					reject('Não foi possivel importar as negociações');
 				}
 			};
