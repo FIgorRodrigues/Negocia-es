@@ -24,7 +24,7 @@ class NegociacaoController{
 		event.preventDefault();
 		this._listaNegociacoes.addNegociacao(this._criaNegociacao());
 		this._mensagem.texto = "Negociação adicionada com sucesso!";
-		this._limpaFormulario();		
+		this._limpaFormulario();
 	}
 
 	apaga(){
@@ -55,15 +55,23 @@ class NegociacaoController{
 	importaNegociacoes(){
 
 		let negociacaoService = new NegociacaoService();
-		negociacaoService.obterNegociacoesDaSemana((error, negociacoes) => {
-
-			if(error){
-				this._mensagem.texto = error;
-				this._mensagem.texto = 'Não foi possivel importar as negociações';
-				return;
-			}
-				negociacoes.forEach(negociacao => this._listaNegociacoes.addNegociacao(negociacao));
-				this._mensagem.texto = "Negociações importadas com Sucesso!";
+		
+		Promise.all([
+			negociacaoService.obterNegociacoesDaSemana(),
+			negociacaoService.obterNegociacoesDaSemanaAnterior(),
+			negociacaoService.obterNegociacoesDaSemanaRetrasada()]
+		)
+		.then(negociacoes => {
+			
+			negociacoes
+				.reduce((arrayAchatado, array) => arrayAchatado.concat(array), [])
+				.forEach(negociacao => this._listaNegociacoes.addNegociacao(negociacao));
+				this._mensagem.texto = "Negociacoes importadas com sucesso";
+		})
+		.catch(error => {
+			
+			this._mensagem.texto = "Não foi possível obter negociações";			
+			console.log(this._mensagem.texto);
 		});
 	}
 }
